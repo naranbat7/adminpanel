@@ -11,7 +11,7 @@ const loading = (
   </div>
 );
 
-const TheContent = () => {
+const TheContent = ({ addToast }) => {
   return (
     <main className="c-main">
       <CContainer fluid>
@@ -27,7 +27,12 @@ const TheContent = () => {
                     name={route.name}
                     render={(props) => (
                       <CFade>
-                        <route.component {...props} />
+                        <route.component
+                          {...props}
+                          addToast={(text, value) => {
+                            addToast(text, value);
+                          }}
+                        />
                       </CFade>
                     )}
                   />

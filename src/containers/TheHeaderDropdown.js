@@ -32,7 +32,7 @@ const TheHeaderDropdown = (props) => {
         props.setModal2(true);
       })
       .catch((err) => {
-        props.addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        props.addToast(err.message, false);
       });
   };
 
@@ -49,7 +49,7 @@ const TheHeaderDropdown = (props) => {
         props.setModal4(true);
       })
       .catch((err) => {
-        props.addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        props.addToast(err.message, false);
       });
   };
 

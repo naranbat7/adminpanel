@@ -58,7 +58,7 @@ const TheLayout = () => {
   const [admins, setAdmins] = useState([]);
   const [toasts, setToasts] = useState([]);
 
-  const addToast = (title, body, color, backgroundColor) => {
+  const addToast = (body, value) => {
     setToasts([
       ...toasts,
       {
@@ -66,10 +66,10 @@ const TheLayout = () => {
         autohide: 3000,
         closeButton: true,
         fade: true,
-        title: title,
+        title: value ? "Амжилттай" : "Алдаа",
         body: body,
-        color: color,
-        backgroundColor: backgroundColor,
+        color: value ? "#18603a" : "#772b35",
+        backgroundColor: value ? "#d5f1de" : "fadddd",
       },
     ]);
   };
@@ -117,13 +117,13 @@ const TheLayout = () => {
     })
       .then((response) => {
         if (response.data.success == true) {
-          addToast("Амжилттай", response.data.message, "#18603a", "#d5f1de");
+          addToast(response.data.message, true);
         } else {
-          addToast("Алдаа", response.data.message, "#772b35", "#fadddd");
+          addToast(response.data.message, false);
         }
       })
       .catch((err) => {
-        addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        addToast(err.message, false);
       });
   };
 
@@ -141,13 +141,13 @@ const TheLayout = () => {
     })
       .then((response) => {
         if (response.data.success == true) {
-          addToast("Амжилттай", response.data.message, "#18603a", "#d5f1de");
+          addToast(response.data.message, true);
         } else {
-          addToast("Алдаа", response.data.message, "#772b35", "#fadddd");
+          addToast(response.data.message, false);
         }
       })
       .catch((err) => {
-        addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        addToast(err.message, false);
       });
   };
 
@@ -165,13 +165,13 @@ const TheLayout = () => {
     })
       .then((response) => {
         if (response.data.success == true) {
-          addToast("Амжилттай", response.data.message, "#18603a", "#d5f1de");
+          addToast(response.data.message, true);
         } else {
-          addToast("Алдаа", response.data.message, "#772b35", "#fadddd");
+          addToast(response.data.message, false);
         }
       })
       .catch((err) => {
-        addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        addToast(err.message, false);
       });
   };
 
@@ -194,7 +194,11 @@ const TheLayout = () => {
           setAdmins={setAdmins}
         />
         <div className="c-body">
-          {data.isFullAdmin == 1 ? <TheContent /> : <TheContent2 />}
+          {data.isFullAdmin == 1 ? (
+            <TheContent addToast={addToast} />
+          ) : (
+            <TheContent2 addToast={addToast} />
+          )}
         </div>
       </div>
       <ModalForm
@@ -431,18 +435,13 @@ const ModalAdminList = (props) => {
     })
       .then((response) => {
         if (response.data.success == true) {
-          props.addToast(
-            "Амжилттай",
-            response.data.message,
-            "#18603a",
-            "#d5f1de"
-          );
+          props.addToast(response.data.message, true);
         } else {
-          props.addToast("Алдаа", response.data.message, "#772b35", "#fadddd");
+          props.addToast(response.data.message, false);
         }
       })
       .catch((err) => {
-        props.addToast("Алдаа", err.message, "#772b35", "#fadddd");
+        props.addToast(err.message, false);
       });
     props.setModal(false);
   };

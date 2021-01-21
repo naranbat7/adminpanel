@@ -16,7 +16,9 @@ const _nav = [
     _tag: "CSidebarNavItem",
     name: "Хайх",
     to: "/searchuser",
-    icon: <CIcon customClasses="c-sidebar-nav-icon" />,
+    icon: (
+      <CIcon name="cil-magnifying-glass" customClasses="c-sidebar-nav-icon" />
+    ),
     badge: {
       color: "danger",
       text: "4",
@@ -26,7 +28,7 @@ const _nav = [
     _tag: "CSidebarNavItem",
     name: "Вэб заавар",
     to: "/webguide",
-    icon: <CIcon customClasses="c-sidebar-nav-icon" />,
+    icon: <CIcon name="cil-calculator" customClasses="c-sidebar-nav-icon" />,
   },
   {
     _tag: "CSidebarNavItem",
@@ -47,7 +49,7 @@ const _nav = [
     icon: <CIcon name="cil-basket" customClasses="c-sidebar-nav-icon" />,
     badge: {
       color: "success",
-      text: "NEW",
+      text: "ШИНЭ",
     },
   },
 ];

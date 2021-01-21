@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CCol,
   CRow,
@@ -11,17 +11,59 @@ import {
   CInputGroup,
   CInput,
   CInputGroupAppend,
+  CModalBody,
+  CLabel,
+  CModal,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CCard,
+  CCardBody,
+  CFormGroup,
+  CInputRadio,
 } from "@coreui/react";
 
 import CIcon from "@coreui/icons-react";
+import axios from "axios";
+import Constant from "../../constants/CONSTANT";
+import moment from "moment";
+import "moment/locale/mn";
+moment.locale("mn");
 
 const fields = ["№", "Дугаар", "IMEI", "Нэр", "Үйлдэл"];
 const pageList = [10, 20, 30];
 
 const Tables = () => {
   const [page, setPage] = useState(1);
+  const [modal1, setModal1] = useState(false);
+  const [body1, setBody1] = useState({});
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState("");
+
+  const [usersData, setUsersData] = useState([]);
+
+  useEffect(() => {
+    axios({
+      method: Constant.userListApi.method,
+      url: Constant.userListApi.url,
+      headers: {
+        Authorization: window.localStorage.getItem("authorization") || "null",
+      },
+    })
+      .then((response) => {
+        if (response.data.success == true) {
+          setUsersData(response.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log("Алдаа: ", err);
+      });
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [usersData, search]);
+
   return (
     <>
       <CRow alignVertical="center">
@@ -76,7 +118,7 @@ const Tables = () => {
             </thead>
             <tbody>
               {usersData
-                .filter((value) => value.number.slice(4, 8).includes(search))
+                .filter((value) => value.telnumber.slice(4, 8).includes(search))
                 .slice((page - 1) * perPage, page * perPage)
                 .map((item, key) => {
                   return (
@@ -85,17 +127,49 @@ const Tables = () => {
                         {(page - 1) * perPage + key + 1}
                       </td>
                       <td className="text-center">
-                        {item.number.charAt(0) +
-                          item.number.charAt(1) +
+                        {item.telnumber.charAt(0) +
+                          item.telnumber.charAt(1) +
                           "**" +
-                          item.number.substring(4, 8)}
+                          item.telnumber.substring(4, 8)}
                       </td>
-                      <td className="text-center">{item.imei}</td>
-                      <td className="text-center">{item.name}</td>
+                      <td className="text-center">{item.imei || "Хоосон"}</td>
                       <td className="text-center">
-                        <CButton active color="success" aria-pressed="true">
-                          Хайлт хийх
-                        </CButton>
+                        {item.lastname} {item.firstname.toUpperCase()}
+                      </td>
+                      <td
+                        className="text-center"
+                        style={
+                          item.end_date == null
+                            ? { color: "#e55353" }
+                            : moment(item.end_date).isBefore(
+                                moment().format("YYYY-MM-DD hh:mm:ss")
+                              )
+                            ? { color: "#f9b115" }
+                            : { color: "#2eb85c" }
+                        }
+                      >
+                        {item.end_date == null ? (
+                          "Даатгуулаагүй"
+                        ) : moment(item.end_date).isBefore(
+                            moment().format("YYYY-MM-DD hh:mm:ss")
+                          ) ? (
+                          moment(
+                            item.end_date,
+                            "YYYY-MM-DD hh:mm:ss"
+                          ).fromNow() + " дууссан"
+                        ) : (
+                          <CButton
+                            active
+                            color="success"
+                            aria-pressed="true"
+                            onClick={() => {
+                              setBody1(item);
+                              setModal1(true);
+                            }}
+                          >
+                            Хайлт хийх
+                          </CButton>
+                        )}
                       </td>
                     </tr>
                   );
@@ -106,168 +180,35 @@ const Tables = () => {
             activePage={page}
             pages={Math.ceil(
               usersData.filter((value) =>
-                value.number.slice(4, 8).includes(search)
+                value.telnumber.slice(4, 8).includes(search)
               ).length / perPage
             )}
             onActivePageChange={setPage}
+            className="mt-3"
           />
         </CCol>
       </CRow>
+      <ModalMap
+        modal={modal1}
+        setModal={setModal1}
+        body={body1}
+        setBody1={setBody1}
+      />
     </>
   );
 };
 
 export default Tables;
 
-const usersData = [
-  {
-    id: 1,
-    name: "John Doe",
-    imei: "1234567890123",
-    number: "89551792",
-  },
-  {
-    id: 2,
-    name: "Samppa Nori",
-    imei: "1234567890123",
-    number: "88290338",
-  },
-  {
-    id: 3,
-    name: "Estavan Lykos",
-    imei: "1234567890123",
-    number: "89398924",
-  },
-  {
-    id: 4,
-    name: "Chetan Mohamed",
-    imei: "1234567890123",
-    number: "88089131",
-  },
-  {
-    id: 5,
-    name: "Derick Maximinus",
-    imei: "1234567890123",
-    number: "89715691",
-  },
-  {
-    id: 6,
-    name: "Friderik Dávid",
-    imei: "1234567890123",
-    number: "89368160",
-  },
-  {
-    id: 7,
-    name: "Yiorgos Avraamu",
-    imei: "1234567890123",
-    number: "89232753",
-  },
-  {
-    id: 8,
-    name: "Avram Tarasios",
-    imei: "1234567890123",
-    number: "89371145",
-  },
-  {
-    id: 9,
-    name: "Quintin Ed",
-    imei: "1234567890123",
-    number: "88903713",
-  },
-  {
-    id: 10,
-    name: "Enéas Kwadwo",
-    imei: "1234567890123",
-    number: "88875578",
-  },
-  {
-    id: 11,
-    name: "Agapetus Tadeáš",
-    imei: "1234567890123",
-    number: "89582064",
-  },
-  {
-    id: 12,
-    name: "Carwyn Fachtna",
-    imei: "1234567890123",
-    number: "89532111",
-  },
-  {
-    id: 13,
-    name: "Nehemiah Tatius",
-    imei: "1234567890123",
-    number: "89127644",
-  },
-  {
-    id: 14,
-    name: "Ebbe Gemariah",
-    imei: "1234567890123",
-    number: "89128039",
-  },
-  {
-    id: 15,
-    name: "Eustorgios Amulius",
-    imei: "1234567890123",
-    number: "88704059",
-  },
-  {
-    id: 16,
-    name: "Leopold Gáspár",
-    imei: "1234567890123",
-    number: "88887311",
-  },
-  {
-    id: 17,
-    name: "Pompeius René",
-    imei: "1234567890123",
-    number: "89674131",
-  },
-  {
-    id: 18,
-    name: "Paĉjo Jadon",
-    imei: "1234567890123",
-    number: "88533080",
-  },
-  {
-    id: 19,
-    name: "Micheal Mercurius",
-    imei: "1234567890123",
-    number: "89889679",
-  },
-  {
-    id: 20,
-    name: "Ganesha Dubhghall",
-    imei: "1234567890123",
-    number: "89319031",
-  },
-  {
-    id: 21,
-    name: "Hiroto Šimun",
-    imei: "1234567890123",
-    number: "89651352",
-  },
-  {
-    id: 22,
-    name: "Vishnu Serghei",
-    imei: "1234567890123",
-    number: "89533041",
-  },
-  {
-    id: 23,
-    name: "Zbyněk Phoibos",
-    imei: "1234567890123",
-    number: "89348364",
-  },
-  {
-    id: 24,
-    name: "Aulus Agmundr",
-    imei: "1234567890123",
-    number: "88418023",
-  },
-  {
-    id: 25,
-    name: "Ford Prefect",
-    imei: "1234567890123",
-    number: "89871274",
-  },
-];
+const ModalMap = (props) => {
+  return (
+    <CModal show={props.modal} onClose={() => props.setModal(false)} size="lg">
+      <CModalHeader closeButton>
+        <CModalTitle>Map</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CLabel>Map</CLabel>
+      </CModalBody>
+    </CModal>
+  );
+};
