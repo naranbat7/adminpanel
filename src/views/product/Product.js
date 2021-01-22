@@ -320,7 +320,7 @@ const Tables = (props) => {
                       <td className="text-center">
                         <img
                           style={{ width: 50, height: 50 }}
-                          src={Constant.baseUrl + "/images/" + item.imgLink}
+                          src={item.imgLink}
                         />
                       </td>
                       <td className="text-center">{item.name}</td>
@@ -405,7 +405,7 @@ const Tables = (props) => {
         setModal={setModal1}
         images={images}
         onChange={onChange}
-        imgLink={Constant.baseUrl + "/images/" + body1.imgLink}
+        imgLink={body1.imgLink}
       />
       <ModalFormDisabled
         title="Барааны мэдээлэл"
@@ -413,7 +413,7 @@ const Tables = (props) => {
         setBody={setBody3}
         modal={modal3}
         setModal={setModal3}
-        imgLink={Constant.baseUrl + "/images/" + body3.imgLink}
+        imgLink={body3.imgLink}
       />
       <ModalCheck
         title="Бараа устгах"
