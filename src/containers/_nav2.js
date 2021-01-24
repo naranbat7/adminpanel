@@ -9,7 +9,7 @@ const _nav = [
   {
     _tag: "CSidebarNavItem",
     name: "Хайх",
-    to: "/alluser",
+    to: "/searchuser",
     icon: (
       <CIcon name="cil-magnifying-glass" customClasses="c-sidebar-nav-icon" />
     ),
