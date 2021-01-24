@@ -23,6 +23,11 @@ import {
   CInputRadio,
 } from "@coreui/react";
 
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet/dist/leaflet";
+import popIcon from "../../assets/marker-icon.png";
 import CIcon from "@coreui/icons-react";
 import axios from "axios";
 import Constant from "../../constants/CONSTANT";
@@ -33,14 +38,19 @@ moment.locale("mn");
 const fields = ["№", "Дугаар", "IMEI", "Нэр", "Үйлдэл"];
 const pageList = [10, 20, 30];
 
-const Tables = () => {
+const Tables = (props) => {
   const [page, setPage] = useState(1);
   const [modal1, setModal1] = useState(false);
-  const [body1, setBody1] = useState({});
+  const [modal2, setModal2] = useState(false);
+  const [body2, setBody2] = useState({
+    telnumber: "",
+  });
+  const [code, setCode] = useState(null);
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState("");
 
   const [usersData, setUsersData] = useState([]);
+  const [locationData, setLocationData] = useState([]);
 
   useEffect(() => {
     axios({
@@ -63,6 +73,38 @@ const Tables = () => {
   useEffect(() => {
     setPage(1);
   }, [usersData, search]);
+
+  const checkCode = () => {
+    console.log(body2.id, code);
+    axios({
+      method: Constant.getUserLastLocationApi.method,
+      url: Constant.getUserLastLocationApi.url,
+      headers: {
+        Authorization: window.localStorage.getItem("authorization") || "null",
+      },
+      data: {
+        id: body2.id,
+        code: code,
+      },
+    })
+      .then((response) => {
+        setModal2(false);
+        if (response.data.success == true) {
+          props.addToast("Амжилттай нэвтэрлээ.", true);
+          setLocationData(response.data.data);
+          setModal1(true);
+        } else {
+          props.addToast(response.data.message, false);
+        }
+        setCode(null);
+      })
+      .catch((err) => {
+        setModal2(false);
+        props.addToast("Алдаа гарлаа: " + err, false);
+        console.log("Алдаа: ", err);
+        setCode(null);
+      });
+  };
 
   return (
     <>
@@ -163,8 +205,8 @@ const Tables = () => {
                             color="success"
                             aria-pressed="true"
                             onClick={() => {
-                              setBody1(item);
-                              setModal1(true);
+                              setBody2(item);
+                              setModal2(true);
                             }}
                           >
                             Хайлт хийх
@@ -191,8 +233,32 @@ const Tables = () => {
       <ModalMap
         modal={modal1}
         setModal={setModal1}
-        body={body1}
-        setBody1={setBody1}
+        body={locationData}
+        title={
+          body2.telnumber.charAt(0) +
+          body2.telnumber.charAt(1) +
+          "**" +
+          body2.telnumber.substring(4, 8) +
+          " дугаартай хэрэглэгчийн " +
+          locationData.length +
+          " өгөгдөл байна."
+        }
+      />
+      <ModalCheckCode
+        modal={modal2}
+        setModal={setModal2}
+        desc={
+          body2.telnumber.charAt(0) +
+          body2.telnumber.charAt(1) +
+          "**" +
+          body2.telnumber.substring(4, 8) +
+          " дугаартай хэрэглэгчийн нууц кодыг оруулна уу"
+        }
+        btnTitle="Үргэлжлүүлэх"
+        btnColor="success"
+        code={code}
+        setCode={setCode}
+        handler={checkCode}
       />
     </>
   );
@@ -201,14 +267,109 @@ const Tables = () => {
 export default Tables;
 
 const ModalMap = (props) => {
+  const [position, setPosition] = useState([
+    {
+      lat: 47.92123,
+      long: 106.918556,
+      date: "2021-1-21 12:27:01",
+    },
+    {
+      lat: 47.93123,
+      long: 106.921556,
+      date: "2021-1-21 13:05:01",
+    },
+    {
+      lat: 47.94123,
+      long: 106.938556,
+      date: "2021-1-21 14:00:01",
+    },
+  ]);
+  const icon = L.icon({
+    iconUrl: popIcon,
+    shadowUrl: null,
+    iconSize: [25, 41],
+    shadowSize: null,
+    iconAnchor: [0, 0],
+    shadowAnchor: null,
+    popupAnchor: [11, 0],
+  });
   return (
-    <CModal show={props.modal} onClose={() => props.setModal(false)} size="lg">
+    <CModal
+      show={props.modal}
+      size="lg"
+      onClose={() => props.setModal(false)}
+      style={{
+        height: "90vh",
+        position: "absolute",
+      }}
+    >
       <CModalHeader closeButton>
-        <CModalTitle>Map</CModalTitle>
+        <CModalTitle>{props.title}</CModalTitle>
       </CModalHeader>
       <CModalBody>
-        <CLabel>Map</CLabel>
+        <MapContainer
+          style={{ height: "100%" }}
+          center={[position[0].lat, position[0].long]}
+          zoom={13}
+          scrollWheelZoom={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {position.map((item, key) => {
+            return (
+              <Marker position={[item.lat, item.long]} icon={icon}>
+                <Popup>Огноо: {item.date}</Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
       </CModalBody>
+    </CModal>
+  );
+};
+
+const ModalCheckCode = (props) => {
+  return (
+    <CModal
+      centered
+      show={props.modal}
+      onClose={() => props.setModal(false)}
+      size="sm"
+    >
+      <CModalHeader>
+        <CModalTitle style={{ textAlign: "center" }}>{props.desc}</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <CFormGroup>
+          <CLabel htmlFor="code">Нууц код</CLabel>
+          <CInput
+            id="code"
+            placeholder="8 оронтой тоо"
+            value={props.code || ""}
+            type="password"
+            maxLength={8}
+            onChange={(value) => {
+              props.setCode(value.target.value);
+            }}
+          />
+        </CFormGroup>
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" onClick={() => props.setModal(false)}>
+          Болих
+        </CButton>{" "}
+        <CButton
+          color={props.btnColor}
+          disabled={!props.code || props.code.length != 8}
+          onClick={() => {
+            props.handler();
+          }}
+        >
+          {props.btnTitle}
+        </CButton>
+      </CModalFooter>
     </CModal>
   );
 };

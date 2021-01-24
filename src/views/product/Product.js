@@ -432,7 +432,12 @@ export default Tables;
 
 const ModalForm = (props) => {
   return (
-    <CModal show={props.modal} onClose={() => props.setModal(false)} size="lg">
+    <CModal
+      centered
+      show={props.modal}
+      onClose={() => props.setModal(false)}
+      size="lg"
+    >
       <CModalHeader closeButton>
         <CModalTitle>{props.title}</CModalTitle>
       </CModalHeader>
@@ -556,7 +561,12 @@ const ModalForm = (props) => {
 
 const ModalCheck = (props) => {
   return (
-    <CModal show={props.modal} onClose={() => props.setModal(false)} size="sm">
+    <CModal
+      centered
+      show={props.modal}
+      onClose={() => props.setModal(false)}
+      size="sm"
+    >
       <CModalHeader>
         <CModalTitle style={{ textAlign: "center" }}>{props.desc}</CModalTitle>
       </CModalHeader>
@@ -579,7 +589,12 @@ const ModalCheck = (props) => {
 
 const ModalFormDisabled = (props) => {
   return (
-    <CModal show={props.modal} onClose={() => props.setModal(false)} size="lg">
+    <CModal
+      centered
+      show={props.modal}
+      onClose={() => props.setModal(false)}
+      size="lg"
+    >
       <CModalHeader closeButton>
         <CModalTitle>{props.title}</CModalTitle>
       </CModalHeader>

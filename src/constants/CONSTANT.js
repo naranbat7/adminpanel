@@ -1,5 +1,5 @@
-//const backendHost = "http://45.55.39.15:8080/api";
-const backendHost = "http://localhost:8080/api/admin";
+const backendHost = "http://45.55.39.15:8080/api/admin";
+//const backendHost = "http://localhost:8080/api/admin";
 
 export default {
   baseUrl: "http://localhost:8080",
@@ -74,5 +74,9 @@ export default {
   setProductApi: {
     method: `post`,
     url: `${backendHost}/setProduct`,
+  },
+  getUserLastLocationApi: {
+    method: `post`,
+    url: `${backendHost}/userLastLocation`,
   },
 };
