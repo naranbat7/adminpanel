@@ -79,4 +79,12 @@ export default {
     method: `post`,
     url: `${backendHost}/userLastLocation`,
   },
+  setUserDaatgalApi: {
+    method: `post`,
+    url: `${backendHost}/setUserDaatgal`,
+  },
+  getDaatgalListApi: {
+    method: `get`,
+    url: `${backendHost}/chooseList`,
+  },
 };

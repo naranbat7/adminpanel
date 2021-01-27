@@ -27,6 +27,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import axios from "axios";
 import Constant from "../../constants/CONSTANT";
+import Tousandify from "thousandify";
 import moment from "moment";
 import "moment/locale/mn";
 moment.locale("mn");
@@ -46,6 +47,7 @@ const Tables = (props) => {
   const [modal1, setModal1] = useState(false);
   const [modal2, setModal2] = useState(false);
   const [modal3, setModal3] = useState(false);
+  const [modal4, setModal4] = useState(false);
   const [body, setBody] = useState({
     lastname: "",
     firstname: "",
@@ -59,12 +61,21 @@ const Tables = (props) => {
       telnumber: "",
     },
   });
+  const [body4, setBody4] = useState({
+    value: 0,
+    duration: 0,
+    price: 0,
+    item: {
+      telnumber: "",
+    },
+  });
   const [body3, setBody3] = useState({
     telnumber: "",
   });
   const [perPage, setPerPage] = useState(10);
   const [search, setSearch] = useState("");
   const [usersData, setUsersData] = useState([]);
+  const [daatgal, setDaatgal] = useState([]);
 
   const getUserListReq = () => {
     axios({
@@ -88,6 +99,24 @@ const Tables = (props) => {
 
   useEffect(() => {
     getUserListReq();
+  }, []);
+
+  useEffect(() => {
+    axios({
+      method: Constant.getDaatgalListApi.method,
+      url: Constant.getDaatgalListApi.url,
+      headers: {
+        Authorization: window.localStorage.getItem("authorization") || "null",
+      },
+    })
+      .then((response) => {
+        if (response.data.success == true) {
+          setDaatgal(response.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log("Алдаа: ", err);
+      });
   }, []);
 
   useEffect(() => {
@@ -150,6 +179,32 @@ const Tables = (props) => {
       .catch((err) => {
         props.addToast(err.message, false);
         setModal2(false);
+      });
+  };
+  const setUserDaatgal = () => {
+    axios({
+      method: Constant.setUserDaatgalApi.method,
+      url: Constant.setUserDaatgalApi.url,
+      headers: {
+        Authorization: window.localStorage.getItem("authorization") || "null",
+      },
+      data: {
+        value: body4.value,
+        id: body4.item.id,
+      },
+    })
+      .then((response) => {
+        if (response.data.success == true) {
+          props.addToast(response.data.message, true);
+          getUserListReq();
+        } else {
+          props.addToast(response.data.message, false);
+        }
+        setModal4(false);
+      })
+      .catch((err) => {
+        props.addToast(err.message, false);
+        setModal4(false);
       });
   };
   const deleteUser = () => {
@@ -290,7 +345,7 @@ const Tables = (props) => {
                           >
                             Өөрчлөх
                           </CButton>
-                          {item.end_date && (
+                          {item.end_date ? (
                             <CDropdown className="ml-2">
                               <CDropdownToggle caret color="info">
                                 Хугацаа сунгах
@@ -309,6 +364,33 @@ const Tables = (props) => {
                                       }}
                                     >
                                       {item1.name}
+                                    </CDropdownItem>
+                                  );
+                                })}
+                              </CDropdownMenu>
+                            </CDropdown>
+                          ) : (
+                            <CDropdown className="ml-2">
+                              <CDropdownToggle caret color="info">
+                                Даатгуулах
+                              </CDropdownToggle>
+                              <CDropdownMenu>
+                                {daatgal.map((item2, idx) => {
+                                  return (
+                                    <CDropdownItem
+                                      key={idx}
+                                      onClick={() => {
+                                        setBody4({
+                                          value: item2.id,
+                                          duration: item2.duration,
+                                          price: item2.price,
+                                          item: item,
+                                        });
+                                        setModal4(true);
+                                      }}
+                                    >
+                                      {item2.duration} сараар ₮
+                                      {Tousandify(item2.price)}
                                     </CDropdownItem>
                                   );
                                 })}
@@ -384,6 +466,24 @@ const Tables = (props) => {
         modal={modal3}
         setModal={setModal3}
         btnColor="danger"
+      />
+      <ModalCheck
+        btnTitle="Даатгуулах"
+        desc={
+          body4.item.telnumber.charAt(0) +
+          body4.item.telnumber.charAt(1) +
+          "**" +
+          body4.item.telnumber.substring(4, 8) +
+          " хэрэглэгчийг " +
+          body4.duration +
+          " сараар ₮" +
+          Tousandify(body4.price) +
+          " төгрөгөөр даатгуулах уу?"
+        }
+        handler={setUserDaatgal}
+        modal={modal4}
+        setModal={setModal4}
+        btnColor="info"
       />
     </>
   );

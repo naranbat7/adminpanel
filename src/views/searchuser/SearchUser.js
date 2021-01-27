@@ -267,23 +267,6 @@ const Tables = (props) => {
 export default Tables;
 
 const ModalMap = (props) => {
-  const [position, setPosition] = useState([
-    {
-      lat: 47.92123,
-      long: 106.918556,
-      date: "2021-1-21 12:27:01",
-    },
-    {
-      lat: 47.93123,
-      long: 106.921556,
-      date: "2021-1-21 13:05:01",
-    },
-    {
-      lat: 47.94123,
-      long: 106.938556,
-      date: "2021-1-21 14:00:01",
-    },
-  ]);
   const icon = L.icon({
     iconUrl: popIcon,
     shadowUrl: null,
@@ -309,7 +292,11 @@ const ModalMap = (props) => {
       <CModalBody>
         <MapContainer
           style={{ height: "100%" }}
-          center={[position[0].lat, position[0].long]}
+          center={
+            props.body[0]
+              ? [props.body[0].location_y, props.body[0].location_x]
+              : [47.92123, 106.918556]
+          }
           zoom={13}
           scrollWheelZoom={false}
         >
@@ -317,10 +304,10 @@ const ModalMap = (props) => {
             attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          {position.map((item, key) => {
+          {props.body.map((item, key) => {
             return (
-              <Marker position={[item.lat, item.long]} icon={icon}>
-                <Popup>Огноо: {item.date}</Popup>
+              <Marker position={[item.location_y, item.location_x]} icon={icon}>
+                <Popup>Огноо: {item.location_date}</Popup>
               </Marker>
             );
           })}
